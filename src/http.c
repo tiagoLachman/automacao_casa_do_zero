@@ -5,8 +5,44 @@ int flagRecv;
 int sizeRecv;
 char server_reply[10000];
 
+char* procurar_substring(char* res, char* key, int n){
+    int len_key = strlen(key);
+    int k=0, index = -1;
+    for(int i=0;i<strlen(res);i++){
+        if(res[i] == key[k]){
+            k++;
+            if(k >= len_key){
+                index = i-k+1;
+                break;
+            }
+        }else{
+            k = 0;
+        }
+        
+    }
+    char* ret =(char*) (malloc(sizeof(char) * (len_key+n+1)));
+    if(index < 0) return ret;
+    int i=index;
+    for(;i<strlen(key)+index+n;i++){
+        ret[i-index] = res[i];
+    }
+    ret[(i-index+n)+1] = '\0';
+    return ret;
+}
+
+char* substring(char* c, int inicio, int fim){
+    if(fim > inicio) return "";
+    char* ret = malloc(sizeof(char) * (fim-inicio));
+
+    for(int i=inicio;i<=fim;i++){
+        ret[i-inicio] = c[i];
+    }
+    return ret;
+}
+
 DWORD WINAPI thread_recv(LPVOID data) {
     SOCKET sock = (SOCKET)data;
+    char* p;
     while (1) {
         if (flagRecv != 1) {
             if ((sizeRecv = recv(sock, server_reply, 10000, 0)) == SOCKET_ERROR) {
@@ -19,15 +55,19 @@ DWORD WINAPI thread_recv(LPVOID data) {
                             printf("%c", server_reply[i]);
                         }
                     }
-                    printf("\nDemoro d++++++\n");
                 }
                 return err;
             }
+            p = procurar_substring(server_reply, "Content-Length", 8);
+            printf("\nsubstring:%s\n", p);
+            free(p);
             flagRecv = sizeRecv > 0;
         }
     }
     return 0;
 }
+
+
 
 DWORD WINAPI sub_thread_server(LPVOID data) {
     int flag_recv_server = 0;
@@ -64,8 +104,8 @@ DWORD WINAPI thread_server(LPVOID data) {
     SOCKET client;
     struct sockaddr_in ipCliente;
     int len_ipCliente = sizeof(ipCliente);
-    ;
     HANDLE thread_server_HANDLE;
+
     while (1) {
         client = accept(sock, (struct sockaddr*)&ipCliente, &len_ipCliente);
         thread_server_HANDLE = CreateThread(NULL, 0, sub_thread_server, (LPVOID)client, 0, NULL);
@@ -108,8 +148,7 @@ int iniciarConexao(SOCKET* sock) {
     return 0;
 }
 
-int conectarRemoto(SOCKET* sock, char* hostname, u_short porta) {
-    struct sockaddr_in serverRemoto;
+int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
     struct addrinfo ip_dns, *ptr = NULL, *result = NULL;
     int conReturn;
     char ipRemoto[17];
@@ -119,22 +158,15 @@ int conectarRemoto(SOCKET* sock, char* hostname, u_short porta) {
     ip_dns.ai_socktype = SOCK_STREAM;
     ip_dns.ai_protocol = IPPROTO_TCP;
 
-    conReturn = getaddrinfo(hostname, "80", &ip_dns, &result);
+    conReturn = getaddrinfo(hostname, porta, &ip_dns, &result);
     if (conReturn != 0) {
         printf("getaddrinfo failed: %d\n", conReturn);
         WSACleanup();
         return 1;
     }
 
-    // Isto é
-    serverRemoto.sin_addr.s_addr = inet_addr(ipRemoto);
-    serverRemoto.sin_family = AF_INET;
-    serverRemoto.sin_port = htons(porta);
-    // A mesma coisa que
-    // serverRemoto.sin_addr.S_un.S_addr = inet_addr();
-
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
-        // Create a SOCKET for connecting to server
+        
         *sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (*sock == INVALID_SOCKET) {
             printf("Error at socket(): %ld\n", WSAGetLastError());
@@ -178,9 +210,9 @@ int criarServidor(SOCKET* sock, u_short port) {
         return err;
     }
     struct sockaddr_in local;
-    local.sin_family = AF_INET;          // Address family
-    local.sin_addr.s_addr = INADDR_ANY;  // Wild card IP address
-    local.sin_port = htons(port);        // port to use
+    local.sin_family = AF_INET;
+    local.sin_addr.s_addr = INADDR_ANY;
+    local.sin_port = htons(port);
 
     err = bind(*sock, (struct sockaddr*)&local, sizeof(local));
     if (err != 0) {

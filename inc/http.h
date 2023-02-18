@@ -26,7 +26,7 @@ int iniciarConexao(SOCKET* sock);
  * @param porta porta da conexão
  * @return 0 se tudo bem
  */
-int conectarRemoto(SOCKET* sock, char* hostname, u_short porta);
+int conectarRemoto(SOCKET* sock, char* hostname, char* porta);
 
 /**
  * @brief Aguarda os dados da função thread_recv
