@@ -1,6 +1,14 @@
 CC = gcc
-CFLAGS = -lws2_32 -g
-LIBS = 
-SOURCES = server.c
-EXECUTABLE = socket_program
+CFLAGS = -I inc/
+LIBS = -lws2_32
 
+SRCS = src/server.c src/http.c
+OBJS = $(SRCS:.c=.o)
+
+TARGET = server
+
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) $(LIBS) -o $(TARGET)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
