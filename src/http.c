@@ -47,7 +47,7 @@ DWORD WINAPI sub_thread_server(LPVOID data) {
         goto exit_sub_thread_server;
     }
     const char* const_res = "HTTP/1.1 200 OK\r\n\r\n asd";
-    //printf("Sending client res:%s\n", const_res);
+    printf("Sending client res:%s\n", const_res);
     if (send(sock, const_res, strlen(const_res), 0) == SOCKET_ERROR) {
         printf("\nSEND_SERVER:%d\n", WSAGetLastError());
         returnVal = 1;
