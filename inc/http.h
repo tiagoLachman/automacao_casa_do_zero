@@ -2,31 +2,54 @@
 #define HTTP_H
 
 #ifdef _WIN32_WINNT
-//#undef _WIN32_WINNT
+// #undef _WIN32_WINNT
 
 #error "_WIN32_WINNT já está definido"
-#endif//_WIN32_WINNT
+#endif  //_WIN32_WINNT
 
 #define _WIN32_WINNT 0x0501
 
 #include <stdio.h>
 #include <winsock2.h>
 
-DWORD WINAPI thread_recv(LPVOID data);
-
-int dadosRecebidos(void);
-
+/**
+ * @brief Inicializa as configurações para realizar conexões.
+ * @param sock ponteiro para um SOCKET definido previamente.
+ * @return 0 se ocorrer tudo bem.
+ */
 int iniciarConexao(SOCKET* sock);
 
-int conectarRemoto(SOCKET* sock, char* ipRemoto, u_short porta);
+/**
+ * @brief Conecta a um servidor remoto
+ * @param sock ponteiro para um SOCKET definido previamente.
+ * @param hostname deve ser um hostname e não um IP
+ * @param porta porta da conexão
+ * @return 0 se tudo bem
+ */
+int conectarRemoto(SOCKET* sock, char* hostname, u_short porta);
 
+/**
+ * @brief Aguarda os dados da função thread_recv
+ * @param void
+ * @return char* contendo os dados.
+ */
 char* aguardarDados(void);
 
-void resetarFlag(void);
-
+/**
+ * @brief Manda uma requisição GET
+ * @param sock ponteiro para um SOCKET definido previamente.
+ * @param req IP da requisição
+ * @param len_req tamanho de req
+ * @return 0 se tudo bem.
+ */
 int mandarRequisicao(SOCKET* sock, char* req, int len_req);
 
+/**
+ * @brief Cria um servidor
+ * @param sock ponteiro para um SOCKET definido previamente.
+ * @param port porta do servidor.
+ * @return 0 se tudo bem.
+*/
 int criarServidor(SOCKET* sock, u_short port);
 
-DWORD WINAPI thread_server(LPVOID data);
-#endif//HTTP_H
+#endif  // HTTP_H

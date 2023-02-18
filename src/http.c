@@ -21,7 +21,7 @@ DWORD WINAPI thread_recv(LPVOID data) {
                     }
                     printf("\nDemoro d++++++\n");
                 }
-                return 1;
+                return err;
             }
             flagRecv = sizeRecv > 0;
         }
