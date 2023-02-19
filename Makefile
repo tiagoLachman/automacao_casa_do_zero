@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -I inc/
 LIBS = -lws2_32
 
-SRCS = src/server.c src/http.c
+SRCS = src/server.c src/http.c src/string_fort.c
 OBJS = $(SRCS:.c=.o)
 
 TARGET = server
