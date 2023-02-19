@@ -1,12 +1,12 @@
+#include <globais.h>
 #include <http.h>
 #include <stdio.h>
 #include <winsock2.h>
-
-//#pragma comment(lib,"ws2_32.lib") //Winsock Library
+// #pragma comment(lib,"ws2_32.lib") //Winsock Library
 
 int timeOut = 5000;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     SOCKET sock;
     iniciarConexao(&sock);
 
@@ -16,8 +16,6 @@ int main(int argc, char* argv[]) {
     char *msg_on = "/on";
     char *msg_off = "/off";
 
-finish:;
-
     mandarRequisicao(&sock, msg_on, strlen(msg_on));
     printf("\nAguardando dados...\n%s\n", aguardarDados());
 
@@ -25,13 +23,16 @@ finish:;
     printf("Aguardando dados...\n%s\n", aguardarDados());
 
     SOCKET server;
-    criarServidor(&server, (u_short)7012);
-    while(1){
+    if (criarServidor(&server, (u_short)7012) != 0) {
+        PRINT_ERRO("erro ao criar o server");
+    }
 
+    while (1) {
     }
     closesocket(sock);
+    closesocket(server);
     WSACleanup();
-    
+
     system("pause");
     return 0;
 }

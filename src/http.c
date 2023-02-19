@@ -1,44 +1,10 @@
 #include <http.h>
 #include <ws2tcpip.h>
+#include <string_fort.h>
 
 int flagRecv;
 int sizeRecv;
 char server_reply[10000];
-
-char* procurar_substring(char* res, char* key, int n){
-    int len_key = strlen(key);
-    int k=0, index = -1;
-    for(int i=0;i<strlen(res);i++){
-        if(res[i] == key[k]){
-            k++;
-            if(k >= len_key){
-                index = i-k+1;
-                break;
-            }
-        }else{
-            k = 0;
-        }
-        
-    }
-    char* ret =(char*) (malloc(sizeof(char) * (len_key+n+1)));
-    if(index < 0) return ret;
-    int i=index;
-    for(;i<strlen(key)+index+n;i++){
-        ret[i-index] = res[i];
-    }
-    ret[(i-index+n)+1] = '\0';
-    return ret;
-}
-
-char* substring(char* c, int inicio, int fim){
-    if(fim > inicio) return "";
-    char* ret = malloc(sizeof(char) * (fim-inicio));
-
-    for(int i=inicio;i<=fim;i++){
-        ret[i-inicio] = c[i];
-    }
-    return ret;
-}
 
 DWORD WINAPI thread_recv(LPVOID data) {
     SOCKET sock = (SOCKET)data;
@@ -48,17 +14,9 @@ DWORD WINAPI thread_recv(LPVOID data) {
             if ((sizeRecv = recv(sock, server_reply, 10000, 0)) == SOCKET_ERROR) {
                 int err = WSAGetLastError();
                 printf("\nRECV: %d\n", err);
-                if (err == WSAETIMEDOUT) {
-                    printf("\n");
-                    for (int i = 0; i < 1000; i++) {
-                        if (server_reply[i] != 0) {
-                            printf("%c", server_reply[i]);
-                        }
-                    }
-                }
                 return err;
             }
-            p = procurar_substring(server_reply, "Content-Length", 8);
+            p = procurar_substring(server_reply, "Content-Type", '\n');
             printf("\nsubstring:%s\n", p);
             free(p);
             flagRecv = sizeRecv > 0;
@@ -66,8 +24,6 @@ DWORD WINAPI thread_recv(LPVOID data) {
     }
     return 0;
 }
-
-
 
 DWORD WINAPI sub_thread_server(LPVOID data) {
     int flag_recv_server = 0;
