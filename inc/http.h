@@ -40,20 +40,21 @@ int iniciarConexao(SOCKET* sock);
 int conectarRemoto(SOCKET* sock, char* hostname, char* porta);
 
 /**
- * @brief Aguarda os dados da função thread_recv
- * @param void
- * @return char* contendo os dados.
+ * @brief Aguarda os dados da função thread_recv e chama a função mandarRequisicao() para enviar uma requisição.
+ * @return Um ponteiro para uma cadeia de caracteres contendo os dados.
+ * @see mandarRequisicao()
  */
 char* aguardarDados(void);
 
 /**
  * @brief Manda uma requisição GET
  * @param sock ponteiro para um SOCKET definido previamente.
- * @param req IP da requisição
+ * @param req string da requisição
  * @param len_req tamanho de req
  * @return 0 se tudo bem.
  */
 int mandarRequisicao(SOCKET* sock, char* req, int len_req);
+
 
 /**
  * @brief Cria um servidor

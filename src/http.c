@@ -1,18 +1,19 @@
 /**
  * @file http.c
  * @author Tiago André Lachman (tiagolachman@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 19-02-2023
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 
-#include <http.h>
-#include <ws2tcpip.h>
-#include <string_fort.h>
 #include <globais.h>
+#include <http.h>
+#include <server.h>
+#include <string_fort.h>
+#include <ws2tcpip.h>
 
 int flagRecv;
 int sizeRecv;
@@ -20,7 +21,6 @@ char server_reply[10000];
 
 DWORD WINAPI thread_recv(LPVOID data) {
     SOCKET sock = (SOCKET)data;
-    char* p;
     while (1) {
         if (flagRecv != 1) {
             if ((sizeRecv = recv(sock, server_reply, 10000, 0)) == SOCKET_ERROR) {
@@ -28,9 +28,6 @@ DWORD WINAPI thread_recv(LPVOID data) {
                 PRINT("\nRECV: %d\n", err);
                 return err;
             }
-            p = procurar_substring(server_reply, "Content-Type", '\n');
-            PRINT("\nsubstring:%s\n", p);
-            free(p);
             flagRecv = sizeRecv > 0;
         }
     }
@@ -53,8 +50,11 @@ DWORD WINAPI sub_thread_server(LPVOID data) {
         returnVal = 1;
         goto exit_sub_thread_server;
     }
+    
+    server_res_handle(server_char_para_req(string_recv));
     const char* const_res = "HTTP/1.1 200 OK\r\n\r\n asd";
     PRINT("Sending client res:%s\n", const_res);
+
     if (send(sock, const_res, strlen(const_res), 0) == SOCKET_ERROR) {
         PRINT("\nSEND_SERVER:%d\n", WSAGetLastError());
         returnVal = 1;
@@ -71,7 +71,7 @@ DWORD WINAPI thread_server(LPVOID data) {
     SOCKET client;
     struct sockaddr_in ipCliente;
     int len_ipCliente = sizeof(ipCliente);
-    //HANDLE thread_server_HANDLE;
+    // HANDLE thread_server_HANDLE;
 
     while (1) {
         client = accept(sock, (struct sockaddr*)&ipCliente, &len_ipCliente);
@@ -132,7 +132,6 @@ int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
     }
 
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
-        
         *sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (*sock == INVALID_SOCKET) {
             PRINT("Error at socket(): %d\n", WSAGetLastError());
