@@ -1,3 +1,14 @@
+/**
+ * @file string_fort.c
+ * @author Tiago André Lachman (tiagolachman@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 19-02-2023
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <string_fort.h>

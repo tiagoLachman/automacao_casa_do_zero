@@ -1,3 +1,14 @@
+/**
+ * @file http.c
+ * @author Tiago André Lachman (tiagolachman@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 19-02-2023
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include <http.h>
 #include <ws2tcpip.h>
 #include <string_fort.h>

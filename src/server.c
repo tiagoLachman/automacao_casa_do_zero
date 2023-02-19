@@ -1,3 +1,14 @@
+/**
+ * @file server.c
+ * @author Tiago André Lachman (tiagolachman@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 19-02-2023
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include <globais.h>
 #include <http.h>
 #include <stdio.h>
