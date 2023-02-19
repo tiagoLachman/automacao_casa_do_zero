@@ -6,7 +6,7 @@
 
 int timeOut = 5000;
 
-int main(int argc, char *argv[]) {
+int main() {
     SOCKET sock;
     iniciarConexao(&sock);
 

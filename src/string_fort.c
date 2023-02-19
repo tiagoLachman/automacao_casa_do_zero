@@ -16,7 +16,7 @@ char* procurar_substring(char* res, char* key, char key_fim) {
     int len_key = strlen(key);
     int k = 0, index = -1;
     int n = 0, i = 0;
-    for (i = 0; i < strlen(res); i++) {
+    for (i = 0; i < (int)(strlen(res)); i++) {
         if (res[i] == key[k]) {
             k++;
             if (k >= len_key) {
@@ -30,7 +30,7 @@ char* procurar_substring(char* res, char* key, char key_fim) {
     if (index < 0) return "";
 
     if (key_fim != 0x18) {
-        for (i = index + len_key; i < strlen(res); i++) {
+        for (i = index + len_key; i < (int)(strlen(res)); i++) {
             if (res[i] == key_fim) {
                 n--;
                 break;

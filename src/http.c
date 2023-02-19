@@ -1,6 +1,7 @@
 #include <http.h>
 #include <ws2tcpip.h>
 #include <string_fort.h>
+#include <globais.h>
 
 int flagRecv;
 int sizeRecv;
@@ -13,11 +14,11 @@ DWORD WINAPI thread_recv(LPVOID data) {
         if (flagRecv != 1) {
             if ((sizeRecv = recv(sock, server_reply, 10000, 0)) == SOCKET_ERROR) {
                 int err = WSAGetLastError();
-                printf("\nRECV: %d\n", err);
+                PRINT("\nRECV: %d\n", err);
                 return err;
             }
             p = procurar_substring(server_reply, "Content-Type", '\n');
-            printf("\nsubstring:%s\n", p);
+            PRINT("\nsubstring:%s\n", p);
             free(p);
             flagRecv = sizeRecv > 0;
         }
@@ -26,7 +27,6 @@ DWORD WINAPI thread_recv(LPVOID data) {
 }
 
 DWORD WINAPI sub_thread_server(LPVOID data) {
-    int flag_recv_server = 0;
     SOCKET sock = (SOCKET)data;
     int bytes_recv = 0;
     char* string_recv;
@@ -35,17 +35,17 @@ DWORD WINAPI sub_thread_server(LPVOID data) {
 
     if ((bytes_recv = recv(sock, string_recv, 1024, 0)) == SOCKET_ERROR) {
         int err = WSAGetLastError();
-        printf("\nRECV_SERVER: %d\n", err);
+        PRINT("\nRECV_SERVER: %d\n", err);
         if (err == WSAECONNABORTED) {
-            printf("\nConexão abortada\n");
+            PRINT("\nConexão abortada\n");
         }
         returnVal = 1;
         goto exit_sub_thread_server;
     }
     const char* const_res = "HTTP/1.1 200 OK\r\n\r\n asd";
-    printf("Sending client res:%s\n", const_res);
+    PRINT("Sending client res:%s\n", const_res);
     if (send(sock, const_res, strlen(const_res), 0) == SOCKET_ERROR) {
-        printf("\nSEND_SERVER:%d\n", WSAGetLastError());
+        PRINT("\nSEND_SERVER:%d\n", WSAGetLastError());
         returnVal = 1;
         goto exit_sub_thread_server;
     }
@@ -60,11 +60,11 @@ DWORD WINAPI thread_server(LPVOID data) {
     SOCKET client;
     struct sockaddr_in ipCliente;
     int len_ipCliente = sizeof(ipCliente);
-    HANDLE thread_server_HANDLE;
+    //HANDLE thread_server_HANDLE;
 
     while (1) {
         client = accept(sock, (struct sockaddr*)&ipCliente, &len_ipCliente);
-        thread_server_HANDLE = CreateThread(NULL, 0, sub_thread_server, (LPVOID)client, 0, NULL);
+        CreateThread(NULL, 0, sub_thread_server, (LPVOID)client, 0, NULL);
     }
     return 0;
 }
@@ -88,18 +88,18 @@ char* aguardarDados(void) {
 int iniciarConexao(SOCKET* sock) {
     WSADATA wsa;
 
-    printf("\nInicializando winsock...");
+    PRINT("Inicializando winsock...");
 
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         int err = WSAGetLastError();
         if (err != WSAEINPROGRESS) return err;
     }
-    printf("Iniciou WSA\n");
+    PRINT("Iniciou WSA\n");
 
     if ((*sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
         return WSAGetLastError();
     }
-    printf("Iniciou Socket\n");
+    PRINT("Iniciou Socket\n");
 
     return 0;
 }
@@ -107,7 +107,6 @@ int iniciarConexao(SOCKET* sock) {
 int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
     struct addrinfo ip_dns, *ptr = NULL, *result = NULL;
     int conReturn;
-    char ipRemoto[17];
 
     ZeroMemory(&ip_dns, sizeof(ip_dns));
     ip_dns.ai_family = AF_UNSPEC;
@@ -116,7 +115,7 @@ int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
 
     conReturn = getaddrinfo(hostname, porta, &ip_dns, &result);
     if (conReturn != 0) {
-        printf("getaddrinfo failed: %d\n", conReturn);
+        PRINT("getaddrinfo failed: %d\n", conReturn);
         WSACleanup();
         return 1;
     }
@@ -125,7 +124,7 @@ int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
         
         *sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (*sock == INVALID_SOCKET) {
-            printf("Error at socket(): %ld\n", WSAGetLastError());
+            PRINT("Error at socket(): %d\n", WSAGetLastError());
             freeaddrinfo(result);
             WSACleanup();
             return 1;
@@ -140,7 +139,7 @@ int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
         }
         break;
     }
-    printf("Conexao estabelecida");
+    PRINT("Conexao estabelecida");
 
     CreateThread(NULL, 0, thread_recv, (LPVOID)*sock, 0, NULL);
 
