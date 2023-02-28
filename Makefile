@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -Iinc
+CFLAGS = -Wall -Wextra -pedantic -Iinc -g
 LDFLAGS = -lm -lws2_32
 SRCDIR = src
 OBJDIR = out

@@ -88,7 +88,8 @@ void resetarFlag(void) {
     flagRecv = 0;
 }
 
-char* aguardarDados(void) {
+char* aguardarDados(SOCKET_novo sock) {
+    if(sock.sock_status != status_cliente) return "";
     while (dadosRecebidos() != 1) {
     }
     server_reply[sizeRecv] = '\0';
@@ -96,7 +97,7 @@ char* aguardarDados(void) {
     return server_reply;
 }
 
-int iniciarConexao(SOCKET* sock) {
+int iniciarConexao(SOCKET_novo* sock) {
     WSADATA wsa;
 
     PRINT("Inicializando winsock...");
@@ -107,15 +108,17 @@ int iniciarConexao(SOCKET* sock) {
     }
     PRINT("Iniciou WSA\n");
 
-    if ((*sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
+    if ((sock->sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
         return WSAGetLastError();
     }
+    sock->sock_status = status_configurado;
     PRINT("Iniciou Socket\n");
 
     return 0;
 }
 
-int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
+int conectarRemoto(SOCKET_novo* sock, char* hostname, char* porta) {
+    if(sock->sock_status != status_configurado) return -1;
     struct addrinfo ip_dns, *ptr = NULL, *result = NULL;
     int conReturn;
 
@@ -132,8 +135,8 @@ int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
     }
 
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
-        *sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-        if (*sock == INVALID_SOCKET) {
+        sock->sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (sock->sock == INVALID_SOCKET) {
             PRINT("Error at socket(): %d\n", WSAGetLastError());
             freeaddrinfo(result);
             WSACleanup();
@@ -141,55 +144,76 @@ int conectarRemoto(SOCKET* sock, char* hostname, char* porta) {
         }
 
         // Connect to server.
-        conReturn = connect(*sock, ptr->ai_addr, (int)ptr->ai_addrlen);
+        conReturn = connect(sock->sock, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (conReturn == SOCKET_ERROR) {
-            closesocket(*sock);
-            *sock = INVALID_SOCKET;
+            closesocket(sock->sock);
+            sock->sock = INVALID_SOCKET;
             continue;
         }
         break;
     }
     PRINT("Conexao estabelecida");
+    sock->sock_status = status_cliente;
 
-    CreateThread(NULL, 0, thread_recv, (LPVOID)*sock, 0, NULL);
+    CreateThread(NULL, 0, thread_recv, (LPVOID)sock->sock, 0, NULL);
 
     return 0;
 }
 
-int mandarRequisicao(SOCKET* sock, char* req, int len_req) {
+int mandarRequisicao(SOCKET_novo* sock, char* req, int len_req) {
+    if((sock->sock_status < 0) || (sock->sock_status == status_server)){
+        (void) req;
+        (void) len_req;
+        return -1;
+    }
+    //TODO: remover esse authorization daqui
     char* msg = "GET  HTTP/1.1\r\nAuthorization: Basic MTIzOjEyMw==\r\n\r\n";
     msg = (char*)malloc(sizeof(char) * len_req + strlen(msg) * sizeof(char) + 1);
 
     sprintf(msg, "GET %s HTTP/1.1\r\nAuthorization: Basic MTIzOjEyMw==\r\n\r\n", req);
 
-    if (send(*sock, msg, strlen(msg), 0) < 0) {
+    if (send(sock->sock, msg, strlen(msg), 0) < 0) {
         return WSAGetLastError();
     }
 
     return 0;
 }
 
-int criarServidor(SOCKET* sock, u_short port) {
-    int err = iniciarConexao(sock);
-    if (err != 0) {
-        return err;
+int criarServidor(SOCKET_novo* sock, u_short port) {
+    if(sock->sock_status > status_conectado){
+        PRINT("\nsock->sock_status:%d\n", sock->sock_status);
+        return -1;
     }
+
+    int err;
+    if(sock->sock_status < status_conectado){
+        err = iniciarConexao(sock);
+        if (err != 0) {
+            return err;
+        }
+    }
+
     struct sockaddr_in local;
     local.sin_family = AF_INET;
     local.sin_addr.s_addr = INADDR_ANY;
     local.sin_port = htons(port);
 
-    err = bind(*sock, (struct sockaddr*)&local, sizeof(local));
+    err = bind(sock->sock, (struct sockaddr*)&local, sizeof(local));
     if (err != 0) {
         return err;
     }
 
-    err = listen(*sock, 10);
+    err = listen(sock->sock, 10);
     if (err != 0) {
         return err;
     }
 
-    CreateThread(NULL, 0, thread_server, (LPVOID)*sock, 0, NULL);
+    CreateThread(NULL, 0, thread_server, (LPVOID)sock->sock, 0, NULL);
+    sock->sock_status = status_server;
 
     return 0;
+}
+
+void fechar_socket(SOCKET_novo sock){
+    closesocket(sock.sock);
 }

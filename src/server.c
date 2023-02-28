@@ -9,7 +9,6 @@
  *
  */
 
-
 /*
 TODO: Melhorar a parte do http, somente retornar quando o content-length for alcançado.
 TODO: Refazer a parte do server_char_para_req, deixar realmente funcionando.
@@ -21,60 +20,80 @@ TODO: Refazer a parte do server_char_para_req, deixar realmente funcionando.
 #include <stdio.h>
 #include <string_fort.h>
 #include <winsock2.h>
+#include <string.h>
 // #pragma comment(lib,"ws2_32.lib") //Winsock Library
 
 int timeOut = 5000;
 
-req_dados server_char_para_req(char *dados) {
-    req_dados req;
+req_dados* server_char_para_req(char *dados) {
+    req_dados* req = (req_dados*) malloc(sizeof(req_dados));
     system("cls");
-    printf("\nserver_char_para_req:\n%s", dados);
+    req->cod = "";
+    req->data = "";
+    req->tipo = "";
+    req->path = "";
+
+    PRINT("\nHTTP request:%s\n", dados);
+
+    size_t len = strcspn(dados, " ");
+    req->tipo = (char*) malloc(sizeof(char) * (len+1));
+    memcpy(req->tipo, dados, len);
+    req->tipo[len] = '\0';
+
+    dados += len+1;
+    len = strcspn(dados, " ");
+    req->path = (char*) malloc(sizeof(char) * (len+1));
+    memcpy(req->path, dados, len);
+    req->path[len] = '\0';
 
     return req;
 }
 
-req_dados server_res_handle(req_dados req) {
-    printf("\nreq.tipo:%s\nreq.path:%s\n", req.tipo, req.path);
+req_dados server_res_handle(req_dados* req) {
+    printf("\nreq.tipo:%s\nreq.path:%s\n", req->tipo, req->path);
     req_dados res;
 
-    res.data = (char*)malloc(sizeof(char) * 5);
+    res.data = (char *)malloc(sizeof(char) * 5);
     sprintf(res.data, "vtc");
     return res;
 }
 
 int main() {
     int err = 0;
-    SOCKET sock;
+    SOCKET_novo sock;
+
     if ((err = iniciarConexao(&sock)) != 0) {
-        PRINT_ERRO(err);
+        PRINT_ERRO("iniciarConexao()", err);
     }
 
     // Conectando-se ao ip de destino
     if ((err = conectarRemoto(&sock, "esp01_quarto", "80")) != 0) {
-        PRINT_ERRO(err);
+        PRINT_ERRO("conectarRemoto()", err);
     }
     char *msg_on = "/on";
     char *msg_off = "/off";
 
     if ((err = mandarRequisicao(&sock, msg_on, strlen(msg_on))) != 0) {
-        PRINT_ERRO(err);
+        PRINT_ERRO("mandarRequisicao()", err);
     }
-    printf("\nAguardando dados...\n%s\n", aguardarDados());
+    printf("\nAguardando dados...\n%s\n", aguardarDados(sock));
 
     if ((err = mandarRequisicao(&sock, msg_off, strlen(msg_off))) != 0) {
-        PRINT_ERRO(err);
+        PRINT_ERRO("mandarRequisicao()", err);
     }
-    printf("Aguardando dados...\n%s\n", aguardarDados());
+    printf("Aguardando dados...\n%s\n", aguardarDados(sock));
 
-    SOCKET server;
+    SOCKET_novo server;
+    server.sock_status = status_desconfigurado;
     if ((err = criarServidor(&server, (u_short)7012)) != 0) {
-        PRINT_ERRO(err);
+        PRINT_ERRO("criarServidor()", err);
     }
 
-    while (1) {
+    while (err == 0) {
     }
-    closesocket(sock);
-    closesocket(server);
+    PRINT_ERRO("while(err == 0)", err);
+    fechar_socket(sock);
+    fechar_socket(server);
     WSACleanup();
 
     system("pause");

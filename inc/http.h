@@ -23,12 +23,25 @@
 #include <stdio.h>
 #include <winsock2.h>
 
+typedef enum{
+    status_desconfigurado = -2,
+    status_configurado = -1,
+    status_conectado = 0,
+    status_server,
+    status_cliente
+}socket_estado;
+
+typedef struct{
+    SOCKET sock;
+    socket_estado sock_status;
+}SOCKET_novo;
+
 /**
  * @brief Inicializa as configurações para realizar conexões.
  * @param sock ponteiro para um SOCKET definido previamente.
  * @return 0 se ocorrer tudo bem.
  */
-int iniciarConexao(SOCKET* sock);
+int iniciarConexao(SOCKET_novo* sock);
 
 /**
  * @brief Conecta a um servidor remoto
@@ -37,14 +50,15 @@ int iniciarConexao(SOCKET* sock);
  * @param porta porta da conexão
  * @return 0 se tudo bem
  */
-int conectarRemoto(SOCKET* sock, char* hostname, char* porta);
+int conectarRemoto(SOCKET_novo* sock, char* hostname, char* porta);
 
 /**
  * @brief Aguarda os dados da função thread_recv e chama a função mandarRequisicao() para enviar uma requisição.
+ * @param sock Ponteiro para o socket que se deseja aguardar os dados
  * @return Um ponteiro para uma cadeia de caracteres contendo os dados.
  * @see mandarRequisicao()
  */
-char* aguardarDados(void);
+char* aguardarDados(SOCKET_novo sock);
 
 /**
  * @brief Manda uma requisição GET
@@ -53,7 +67,7 @@ char* aguardarDados(void);
  * @param len_req tamanho de req
  * @return 0 se tudo bem.
  */
-int mandarRequisicao(SOCKET* sock, char* req, int len_req);
+int mandarRequisicao(SOCKET_novo* sock, char* req, int len_req);
 
 
 /**
@@ -62,6 +76,14 @@ int mandarRequisicao(SOCKET* sock, char* req, int len_req);
  * @param port porta do servidor.
  * @return 0 se tudo bem.
 */
-int criarServidor(SOCKET* sock, u_short port);
+int criarServidor(SOCKET_novo* sock, u_short port);
+
+/**
+ * @brief Alternativa para o closesocket(), por causa do SOCKET_novo.
+ * 
+ * @param sock Socket a ser fechado
+ */
+void fechar_socket(SOCKET_novo sock);
+
 
 #endif  // HTTP_H

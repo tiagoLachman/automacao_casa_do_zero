@@ -15,7 +15,7 @@
 #define ATIVAR_CONSOLE_LOG
 
 #ifdef ATIVAR_CONSOLE_LOG
-#define PRINT_ERRO(text)    (printf("\nERRO:%d\n", text))
+#define PRINT_ERRO(text, err_id)    (printf("\nERRO \"%s\":%d\n", text, err_id))
 #define PRINT(text, ...)    (printf(text, ##__VA_ARGS__))
 
 #else 
