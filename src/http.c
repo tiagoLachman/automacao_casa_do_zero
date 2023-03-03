@@ -92,6 +92,7 @@ char* aguardarDados(SOCKET_novo sock) {
     if (sock.sock_status != status_cliente) return "";
     while (dadosRecebidos() != 1) {
     }
+    server_char_para_req(server_reply);
     server_reply[sizeRecv] = '\0';
     resetarFlag();
     return server_reply;
@@ -164,18 +165,18 @@ int mandarRequisicao(SOCKET_novo* sock, char* req, int len_req) {
     if ((sock->sock_status < 0) || (sock->sock_status == status_server)) {
         (void)req;
         (void)len_req;
+        (void)sock;
         return -1;
     }
-    
-    char* msg = "GET  HTTP/1.1\r\n\r\n\r\n";
-    msg = (char*)malloc(sizeof(char) * (len_req + strlen(msg) * sizeof(char) + 1 + strlen(sock->parametros_conexao)));
 
-    sprintf(msg, "GET %s HTTP/1.1\r\n%s\r\n\r\n", req, sock->parametros_conexao);
+    char* msg = (char*)malloc(sizeof(char) * (len_req + 21 + 1 + strlen(sock->parametros_conexao)));
+
+    sprintf(msg, "GET %s HTTP/1.1\r\n%s\r\n\r\n\0", req, sock->parametros_conexao);
 
     if (send(sock->sock, msg, strlen(msg), 0) < 0) {
         return WSAGetLastError();
     }
-
+    free(msg);
     return 0;
 }
 

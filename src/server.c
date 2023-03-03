@@ -27,11 +27,12 @@ int timeOut = 5000;
 
 req_dados* server_char_para_req(char *dados) {
     req_dados* req = (req_dados*) malloc(sizeof(req_dados));
-    system("cls");
+    APAGAR_TELA();
     req->cod = "";
     req->data = "";
     req->tipo = "";
     req->path = "";
+    req->content_length = "";
 
     PRINT("\nHTTP request:%s\n", dados);
 
@@ -78,12 +79,13 @@ int main() {
     if ((err = mandarRequisicao(&sock, msg_on, strlen(msg_on))) != 0) {
         PRINT_ERRO("mandarRequisicao()", err);
     }
-    printf("\nAguardando dados...\n%s\n", aguardarDados(sock));
+    PRINT("\nAguardando dados...\n%s\n", aguardarDados(sock));
 
-    if ((err = mandarRequisicao(&sock, msg_off, strlen(msg_off))) != 0) {
+    if ((err = mandarRequisicao(&sock, msg_on, strlen(msg_off))) != 0) {
         PRINT_ERRO("mandarRequisicao()", err);
     }
-    printf("Aguardando dados...\n%s\n", aguardarDados(sock));
+
+    PRINT("Aguardando dados...\n%s\n", aguardarDados(sock));
 
     SOCKET_novo server;
     server.sock_status = status_desconfigurado;
@@ -91,8 +93,27 @@ int main() {
         PRINT_ERRO("criarServidor()", err);
     }
 
+    int op = 0;
     while (err == 0) {
+        system("cls");
+        printf("op:%d\ndigitado:", op);
+        scanf("%d", &op);
+        iniciarConexao(&sock);
+        conectarRemoto(&sock, "esp01_quarto", "80");
+        if(op == 1){
+            if ((err = mandarRequisicao(&sock, msg_on, strlen(msg_on))) != 0) {
+                printf("\nmandarRequisicao(msg_on):%d\n", err);
+            }
+        }else{
+            if ((err = mandarRequisicao(&sock, msg_off, strlen(msg_off))) != 0) {
+                printf("\nmandarRequisicao(msg_off):%d\n", err);
+            }
+        }
+        printf("Aguardando dados...\n%s\n", aguardarDados(sock));
+        closesocket(sock.sock);
+        system("pause");
     }
+
     PRINT_ERRO("while(err == 0)", err);
     fechar_socket(sock);
     fechar_socket(server);

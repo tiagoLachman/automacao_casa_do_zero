@@ -8,7 +8,8 @@
 typedef struct{
     char* tipo;
     char* cod;
-    char* path;    
+    char* path;
+    char* content_length;
     char* data;
 }req_dados;
 
