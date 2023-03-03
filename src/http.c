@@ -50,7 +50,7 @@ DWORD WINAPI sub_thread_server(LPVOID data) {
         returnVal = 1;
         goto exit_sub_thread_server;
     }
-    
+
     server_res_handle(server_char_para_req(string_recv));
     const char* const_res = "HTTP/1.1 200 OK\r\n\r\n asd";
     PRINT("Sending client res:%s\n", const_res);
@@ -89,7 +89,7 @@ void resetarFlag(void) {
 }
 
 char* aguardarDados(SOCKET_novo sock) {
-    if(sock.sock_status != status_cliente) return "";
+    if (sock.sock_status != status_cliente) return "";
     while (dadosRecebidos() != 1) {
     }
     server_reply[sizeRecv] = '\0';
@@ -118,7 +118,7 @@ int iniciarConexao(SOCKET_novo* sock) {
 }
 
 int conectarRemoto(SOCKET_novo* sock, char* hostname, char* porta) {
-    if(sock->sock_status != status_configurado) return -1;
+    if (sock->sock_status != status_configurado) return -1;
     struct addrinfo ip_dns, *ptr = NULL, *result = NULL;
     int conReturn;
 
@@ -161,16 +161,16 @@ int conectarRemoto(SOCKET_novo* sock, char* hostname, char* porta) {
 }
 
 int mandarRequisicao(SOCKET_novo* sock, char* req, int len_req) {
-    if((sock->sock_status < 0) || (sock->sock_status == status_server)){
-        (void) req;
-        (void) len_req;
+    if ((sock->sock_status < 0) || (sock->sock_status == status_server)) {
+        (void)req;
+        (void)len_req;
         return -1;
     }
-    //TODO: remover esse authorization daqui
-    char* msg = "GET  HTTP/1.1\r\nAuthorization: Basic MTIzOjEyMw==\r\n\r\n";
-    msg = (char*)malloc(sizeof(char) * len_req + strlen(msg) * sizeof(char) + 1);
+    
+    char* msg = "GET  HTTP/1.1\r\n\r\n\r\n";
+    msg = (char*)malloc(sizeof(char) * (len_req + strlen(msg) * sizeof(char) + 1 + strlen(sock->parametros_conexao)));
 
-    sprintf(msg, "GET %s HTTP/1.1\r\nAuthorization: Basic MTIzOjEyMw==\r\n\r\n", req);
+    sprintf(msg, "GET %s HTTP/1.1\r\n%s\r\n\r\n", req, sock->parametros_conexao);
 
     if (send(sock->sock, msg, strlen(msg), 0) < 0) {
         return WSAGetLastError();
@@ -180,13 +180,13 @@ int mandarRequisicao(SOCKET_novo* sock, char* req, int len_req) {
 }
 
 int criarServidor(SOCKET_novo* sock, u_short port) {
-    if(sock->sock_status > status_conectado){
+    if (sock->sock_status > status_conectado) {
         PRINT("\nsock->sock_status:%d\n", sock->sock_status);
         return -1;
     }
 
     int err;
-    if(sock->sock_status < status_conectado){
+    if (sock->sock_status < status_conectado) {
         err = iniciarConexao(sock);
         if (err != 0) {
             return err;
@@ -214,6 +214,6 @@ int criarServidor(SOCKET_novo* sock, u_short port) {
     return 0;
 }
 
-void fechar_socket(SOCKET_novo sock){
+void fechar_socket(SOCKET_novo sock) {
     closesocket(sock.sock);
 }

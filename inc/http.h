@@ -34,6 +34,7 @@ typedef enum{
 typedef struct{
     SOCKET sock;
     socket_estado sock_status;
+    char* parametros_conexao;
 }SOCKET_novo;
 
 /**

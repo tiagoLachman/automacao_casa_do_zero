@@ -73,6 +73,8 @@ int main() {
     char *msg_on = "/on";
     char *msg_off = "/off";
 
+    sock.parametros_conexao = "Authorization: Basic MTIzOjEyMw==";
+
     if ((err = mandarRequisicao(&sock, msg_on, strlen(msg_on))) != 0) {
         PRINT_ERRO("mandarRequisicao()", err);
     }
