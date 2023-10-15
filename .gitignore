@@ -1,3 +1,4 @@
 server.exe
 .vscode
 out/
+build/
