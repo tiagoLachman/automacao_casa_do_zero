@@ -1,0 +1,64 @@
+{
+	"info": {
+		"_postman_id": "109ded12-122f-4642-9f82-bb8c1edb4600",
+		"name": "Automação casa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21109735",
+		"_collection_link": "https://cloudy-astronaut-362056.postman.co/workspace/modelo_pix~568f1336-5dec-4f72-8c82-bf59a4a2d964/collection/21109735-109ded12-122f-4642-9f82-bb8c1edb4600?action=share&source=collection_link&creator=21109735"
+	},
+	"item": [
+		{
+			"name": "Lampada",
+			"item": [
+				{
+					"name": "Set status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.0.0.30/rele?nome=",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"0",
+								"30"
+							],
+							"path": [
+								"rele"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.0.0.30/rele",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"0",
+								"30"
+							],
+							"path": [
+								"rele"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
