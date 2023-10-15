@@ -6,7 +6,6 @@ project(MeuProjeto)
 set(SRCDIR src)
 set(INCDIR inc)
 set(OBJDIR out)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -g")
 
 if (WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lws2_32")

@@ -144,7 +144,6 @@ int conectarRemoto(SOCKET_novo* sock, char* hostname, char* porta) {
             return 1;
         }
 
-        // Connect to server.
         conReturn = connect(sock->sock, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (conReturn == SOCKET_ERROR) {
             closesocket(sock->sock);
