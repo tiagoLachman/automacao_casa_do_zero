@@ -49,13 +49,15 @@ uint32 ICACHE_FLASH_ATTR user_rf_cal_sector_set(void) {
 #define WEB_SERVER_PORT 80
 #define LIMITE_NOME_LAMPADA 50
 
+#define STATUS_ELETRICO_LIGADO 1
+
 struct espconn web_server;
 esp_tcp web_server_tcp;
 
 static int8_t statusRele = 0;
 static char *nomeLampada;
 
-#define GPIO_PIN_RELE 0
+#define GPIO_PIN_RELE 2
 
 #define DATA_FILE_NAME "/data.txt"
 
@@ -77,7 +79,7 @@ void readStringFromFlash(char *str, int len) {
 }
 
 void refresh_rele_status() {
-    GPIO_OUTPUT_SET(GPIO_PIN_RELE, statusRele);
+    GPIO_OUTPUT_SET(GPIO_PIN_RELE, !statusRele);
 }
 
 void ICACHE_FLASH_ATTR web_server_receive(void *arg, char *data, unsigned short length) {
@@ -157,7 +159,6 @@ void wifi_event_handler(System_Event_t *event) {
     if (event->event == EVENT_STAMODE_GOT_IP) {
         espconn_regist_recvcb(&web_server, web_server_receive);
         espconn_accept(&web_server);
-
         os_printf("Endereço IP da ESP8266: %d.%d.%d.%d\n", IP2STR(&event->event_info.got_ip.ip));
 
         uint32_t cpu_freq = system_get_cpu_freq();
@@ -165,19 +166,11 @@ void wifi_event_handler(System_Event_t *event) {
     }
 }
 
-void init_spi_flash() {
-    if (spi_flash_init() == SPI_FLASH_RESULT_OK) {
-        os_printf("Memória flash inicializada.\n");
-    } else {
-        os_printf("Falha na inicialização da memória flash.\n");
-    }
-}
-
 void user_init(void) {
+    gpio_init();
+    refresh_rele_status();
     nomeLampada = (char *)os_malloc(LIMITE_NOME_LAMPADA);
-
-    // init_spi_flash();
-
+    
     wifi_set_sleep_type(NONE_SLEEP_T);
     wifi_set_opmode(STATION_MODE);
     struct station_config stationConf;
