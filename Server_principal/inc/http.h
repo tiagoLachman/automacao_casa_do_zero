@@ -1,12 +1,12 @@
 /**
  * @file http.h
  * @author Tiago André Lachman (tiagolachman@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 19-02-2023
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 
 #ifndef HTTP_H
@@ -23,19 +23,19 @@
 #include <stdio.h>
 #include <winsock2.h>
 
-typedef enum{
+typedef enum {
     status_desconfigurado = -2,
     status_configurado = -1,
     status_conectado = 0,
     status_server,
     status_cliente
-}socket_estado;
+} socket_estado;
 
-typedef struct{
+typedef struct {
     SOCKET sock;
     socket_estado sock_status;
     char* parametros_conexao;
-}SOCKET_novo;
+} SOCKET_novo;
 
 /**
  * @brief Inicializa as configurações para realizar conexões.
@@ -70,21 +70,19 @@ char* aguardarDados(SOCKET_novo sock);
  */
 int mandarRequisicao(SOCKET_novo* sock, char* req, int len_req);
 
-
 /**
  * @brief Cria um servidor
  * @param sock ponteiro para um SOCKET definido previamente.
  * @param port porta do servidor.
  * @return 0 se tudo bem.
-*/
+ */
 int criarServidor(SOCKET_novo* sock, u_short port);
 
 /**
  * @brief Alternativa para o closesocket(), por causa do SOCKET_novo.
- * 
+ *
  * @param sock Socket a ser fechado
  */
 void fechar_socket(SOCKET_novo sock);
-
 
 #endif  // HTTP_H

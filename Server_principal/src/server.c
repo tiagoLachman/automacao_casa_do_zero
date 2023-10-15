@@ -25,8 +25,8 @@ TODO: Refazer a parte do server_char_para_req, deixar realmente funcionando.
 
 int timeOut = 5000;
 
-req_dados* server_char_para_req(char *dados) {
-    req_dados* req = (req_dados*) malloc(sizeof(req_dados));
+req_dados *server_char_para_req(char *dados) {
+    req_dados *req = (req_dados *)malloc(sizeof(req_dados));
     APAGAR_TELA();
     req->cod = "";
     req->data = "";
@@ -37,20 +37,20 @@ req_dados* server_char_para_req(char *dados) {
     PRINT("\nHTTP request:%s\n", dados);
 
     size_t len = strcspn(dados, " ");
-    req->tipo = (char*) malloc(sizeof(char) * (len+1));
+    req->tipo = (char *)malloc(sizeof(char) * (len + 1));
     memcpy(req->tipo, dados, len);
     req->tipo[len] = '\0';
 
-    dados += len+1;
+    dados += len + 1;
     len = strcspn(dados, " ");
-    req->path = (char*) malloc(sizeof(char) * (len+1));
+    req->path = (char *)malloc(sizeof(char) * (len + 1));
     memcpy(req->path, dados, len);
     req->path[len] = '\0';
 
     return req;
 }
 
-req_dados server_res_handle(req_dados* req) {
+req_dados server_res_handle(req_dados *req) {
     printf("\nreq.tipo:%s\nreq.path:%s\n", req->tipo, req->path);
     req_dados res;
 
@@ -100,11 +100,11 @@ int main() {
         scanf("%d", &op);
         iniciarConexao(&sock);
         conectarRemoto(&sock, "esp01_quarto", "80");
-        if(op == 1){
+        if (op == 1) {
             if ((err = mandarRequisicao(&sock, msg_on, strlen(msg_on))) != 0) {
                 printf("\nmandarRequisicao(msg_on):%d\n", err);
             }
-        }else{
+        } else {
             if ((err = mandarRequisicao(&sock, msg_off, strlen(msg_off))) != 0) {
                 printf("\nmandarRequisicao(msg_off):%d\n", err);
             }

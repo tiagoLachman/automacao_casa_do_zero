@@ -1,12 +1,12 @@
 /**
  * @file string_fort.c
  * @author Tiago André Lachman (tiagolachman@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 19-02-2023
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 
 #include <stdlib.h>
@@ -16,7 +16,7 @@
 
 char* substring(char* c, int inicio, int fim) {
     if (fim < inicio) return "";
-    char* ret =(char*) malloc(sizeof(char) * (fim - inicio + 1));
+    char* ret = (char*)malloc(sizeof(char) * (fim - inicio + 1));
     ret[fim - inicio] = '\0';
     for (int i = inicio; i < fim; i++) {
         ret[i - inicio] = c[i];
@@ -55,20 +55,20 @@ char* procurar_substring(char* res, char* key, char key_fim) {
     return substring(res, index, index + len_key + n + 1);
 }
 
-char* substring_char_char(char* c, char inicio, char fim){
+char* substring_char_char(char* c, char inicio, char fim) {
     int nInicio = 0, nFim;
-    while(c[nInicio] != inicio) nInicio++;
+    while (c[nInicio] != inicio) nInicio++;
 
     nFim = nInicio;
 
-    while(c[nFim] != fim) nFim++;
+    while (c[nFim] != fim) nFim++;
     return substring(c, nInicio, nFim);
 }
 
-char* substring_int_char(char* c, int inicio, char fim){
-    if(inicio < 0) return "";
+char* substring_int_char(char* c, int inicio, char fim) {
+    if (inicio < 0) return "";
     int nFim = inicio;
-    while(c[nFim] != fim) nFim++;
-    
+    while (c[nFim] != fim) nFim++;
+
     return substring(c, inicio, nFim);
 }
