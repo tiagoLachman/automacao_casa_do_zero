@@ -10,10 +10,10 @@ Sistema de automação residencial feito em C no windows, utilizando uma placa d
 ## TODO
 
 - Esp01_Relé:
-  - Testar o programa base da ESP01 na placa por um mês;
+  - Testar o programa base da ESP01 na placa;
   - Fazer update do schematic da placa após os testes;
   - Criar endpoint de "statusPlaca" com o máximo de dados possível para debug e análise;
-  - [?]() Adicionar algum tipo de autenticação[?]();
+  - Adicionar feedback da saída por algum sensor de corrente, exemplo ACS712;
 - Server_principal:
   - Criar um DNS na rede para as placas ESP01;
   - Refatorar o código para os novos tipos de requisições;
